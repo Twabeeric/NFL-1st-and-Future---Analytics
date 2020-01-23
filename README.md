@@ -1,6 +1,8 @@
-NFL 1st and Future – Analytics
+NFL 1st and Future – Analytics - (View pdf)
+
 FEATURE IMPORTANCE, FEATURE INTERACTION, FACTOR ANALYSIS AND RECURSIVE FEATURE ELIMINATION
 ABSTRACT
+
 This review tries to examine the effects of factors including playing surfaces on player movements and by extension, their concurrence with lower extremity injuries.
 The analysis uncovers specific features and feature interactions which combined with player movement present ideal conditions for risk of injury.
 The analysis concentrates on game conditions instead of play conditions, as a quarter of the injury data has no identifying play key. The choice to concentrate on game conditions shows better predictive quality across different models than play conditions.
@@ -21,10 +23,13 @@ immediately after coming back from injury
 7. Same injury, more severe recovery time on synthetic:  That synthetic turf not only had a higher prevalence of injuries but a higher prevalence of more severe injuries
 8. Less injuries during wet weather:  That the effect of natural versus synthetic turf is eliminated during games with rain or snow.
 9. Games with multiple injuries:  That there are games with perfect conditions to cause multiple injuries.
+
 DATA SET AND FEATURE ENGINEERING
+
 Characteristics of the dataset included InjuryRecord missing 28 PlayKeys, PlayerTrackData missing 74,526,875 event values and PlayList missing 16910 StadiumType, 18691 Weather and 367 PlayType values. This is consequential because tree models have a selection bias against columns with missing values and imputed values might skew the analysis. We note the columns as they are likely not to depended on for analysis.
 First step to handling the data was to free up memory by downgrading the datatypes for all data to make it easier to fit into memory.
 All the datasets were merged by common primary keys and sliced for the row representing the termination of the play (where time on the play is maximum).
+
 Fig 1: PlayList
     Feature
   Definition
@@ -58,6 +63,8 @@ Fig 1: PlayList
    Bucketing weather into snow, rain, clear, cloudy, unknown
  StaduimType0
    Bucketing stadiumtype into indoor, outdoor, dome open, dome closed
+   
+   
  Fig 2: InjuryRecord
     Feature
   Definition
@@ -123,11 +130,13 @@ Fig 1: PlayList
  s_vdiff_adiff_f2delta_std
    Quantify extremes beyond group std
  * Mean and standard deviation for speed, distance, acceleration features are contained in the function called createstat() but having poor predictive quality, they are commented out in the notebook.
+ 
 The dataset was then split into three sets:
 1. Training dataset (80%)
 2. Test dataset (20%)
 a. Evaluation dataset (10%)
 b. Inference and Scoring (10%)
+
 MODELS AND IMPLEMENTATION Our binary classification algorithm:
 1. We create two datasets: baseline data and the feature engineered dataset.
 2. Select individual injury to be analyzed (Features affecting different injuries are exclusive
@@ -144,15 +153,20 @@ Three models were selected, each with their own strengths and weaknesses in bina
 Catboost was selected as it does not need one-hot encoded categorical features, which allows for easy feature engineering by mixing numerical features and string features. Catboost allows for the feature importance, feature interaction importance, hyperparameter grid search and object importance. This model was used to rank feature importance as well as calculate what pairwise feature interactions had the best predictive qualities.
 LightGBM was selected as a control for the CatBoost model as it implements the same gradient boosting algorithm and is faster. This model was used to countercheck catboost feature importance and used for one step recursive feature elimination.
 Random Forest was selected as it implements a different algorithm and therefore can be used as a comparison to CatBoost/LightGBM to triangulate the answer as well as countercheck. It was primarily used for feature importance.
+ 
  DATA AUGMENTATION
 The idea was to augment the small injury dataset by duplicating knee and ankle injuries data and reversing the injury label. This was based off Player with PlayerKey 47307 who managed to injure his knee and ankle on the same play in the same game. Since the conditions that led to the double injury were similar, the assumption was that conditions affecting knee and ankle injuries are common.
 However, running a binary classification on the augmented dataset produced abnormally high log-loss scores i.e. 0.35 while non-augmented data achieved log-loss scores of 0.05. This proves that these two injuries had mutually exclusive sets of features/conditions affecting their occurrence.
 Therefore, any analysis should consider all the injuries individually.
 Fig 4:
 * Data augmentation contained in the function called daugment() but having poor predictive quality, they are commented out in the notebook.
-ANAL YSIS
+
+ANALYSIS
+
 1. INJURIES IN GENERAL
+
 Factor Analysis:
+
 Factor Analysis can be used as a form of exploratory feature analysis by dimension reduction.
 Factor analysis was done to discover hidden relationships between features by extracting maximum common variance. After calculating eigen values, we create 13 factors which explain 0.6867 of the total variances. Even after calculating for 46 factors, the total explained variance was approximately 0.6521.
 Fig 5:
